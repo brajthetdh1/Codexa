@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -436,8 +436,383 @@
           <tr><td><strong>LoRaWAN</strong></td><td>2–15 km</td><td>Very low</td><td>Very low</td><td>Agriculture, cities, remote sensors</td></tr>
           <tr><td><strong>NB-IoT</strong></td><td>~10 km</td><td>Low</td><td>Low</td><td>Cellular IoT with SIM, meters</td></tr>
           <tr><td><strong>4G / 5G</strong></td><td>Global</td><td>High</td><td>Very high</td><td>Cameras, vehicles, high-bandwidth</td></tr>
-          <tr><td><strong>Ethernet</strong></td><td>Cable</td><td>Low</td><td
-  
-      
-    
-        
+          <tr><td><strong>Ethernet</strong></td><td>Cable</td><td>Low</td><td>Very high</td><td>Industrial, servers, fixed installs</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Protocols that run on top</h3>
+    <ul>
+      <li><strong>MQTT</strong> — Publish/subscribe over TCP. The king of IoT protocols. Lightweight, works over flaky networks.</li>
+      <li><strong>HTTP/REST</strong> — Familiar, request/response. Fine for occasional updates but too heavy for battery devices.</li>
+      <li><strong>CoAP</strong> — Like HTTP but over UDP for constrained devices.</li>
+      <li><strong>WebSockets</strong> — Persistent connection, good for real-time dashboards.</li>
+      <li><strong>AMQP</strong> — Enterprise-grade messaging, used in some industrial IoT.</li>
+    </ul>
+
+    <div class="callout tip">
+      <span class="title">✅ Choosing rule</span>
+      <p><strong>Short range + low power → BLE.</strong> <strong>Long range + low power → LoRaWAN.</strong> <strong>High bandwidth → Wi-Fi or cellular.</strong> <strong>Indoor + always powered → Wi-Fi.</strong></p>
+    </div>
+
+    <h3>Gateways</h3>
+    <p>
+      Sometimes devices can't talk directly to the internet (LoRa sensors, Zigbee bulbs).
+      A <strong>gateway</strong> bridges local protocols to IP networks. Examples:
+      a Zigbee hub, a LoRaWAN concentrator, or a Raspberry Pi running as a bridge.
+    </p>
+
+    <!-- ============ PROCESSING ============ -->
+    <h2 id="processing">Layer 3 — Processing Layer (the brain)</h2>
+    <p>
+      This is where raw numbers become meaning. A temperature reading of "38" is
+      useless on its own. The processing layer turns it into: "Greenhouse zone 1
+      is overheating; trigger cooling and alert the farmer."
+    </p>
+
+    <h3>Core responsibilities</h3>
+    <ul>
+      <li><strong>Ingestion</strong> — Receive data from thousands of devices</li>
+      <li><strong>Storage</strong> — Persist it in databases optimized for time-series data</li>
+      <li><strong>Analytics</strong> — Compute averages, detect anomalies, run ML models</li>
+      <li><strong>Rules engine</strong> — "If X, then Y" automation</li>
+      <li><strong>Command dispatch</strong> — Send actions back down to devices</li>
+      <li><strong>Device management</strong> — Track firmware versions, health, connectivity</li>
+    </ul>
+
+    <h3>Common tools</h3>
+    <div class="kv-grid">
+      <div class="kv">
+        <div class="k">Cloud platforms</div>
+        <div class="v">AWS IoT Core, Azure IoT Hub, Google Cloud IoT, Particle, ThingsBoard</div>
+      </div>
+      <div class="kv">
+        <div class="k">Databases</div>
+        <div class="v">InfluxDB, TimescaleDB, MongoDB, PostgreSQL, AWS Timestream</div>
+      </div>
+      <div class="kv">
+        <div class="k">Streaming</div>
+        <div class="v">Apache Kafka, AWS Kinesis, RabbitMQ, Redis Streams</div>
+      </div>
+      <div class="kv">
+        <div class="k">Flow tools</div>
+        <div class="v">Node-RED, n8n, Home Assistant automations</div>
+      </div>
+    </div>
+
+    <!-- ============ APPLICATION ============ -->
+    <h2 id="application">Layer 4 — Application Layer (what humans see)</h2>
+    <p>
+      The top of the stack. This is where users interact with the system — through
+      dashboards, mobile apps, voice assistants, or automated alerts.
+    </p>
+
+    <h3>What lives here</h3>
+    <ul>
+      <li><strong>Dashboards:</strong> Grafana, Node-RED Dashboard, custom React/Vue apps</li>
+      <li><strong>Mobile apps:</strong> Native (Swift/Kotlin) or cross-platform (Flutter/React Native)</li>
+      <li><strong>Alerts:</strong> Email, SMS (Twilio), push (Firebase), Slack, Telegram</li>
+      <li><strong>APIs:</strong> REST or GraphQL endpoints for third-party integrations</li>
+      <li><strong>Business logic:</strong> Billing, user roles, reporting, compliance</li>
+    </ul>
+
+    <div class="callout">
+      <span class="title">📌 Good applications hide complexity</span>
+      <p>A farmer doesn't care about MQTT topics or JSON payloads. They care about one thing: "Is my greenhouse okay?" Great application layers turn data into decisions.</p>
+    </div>
+
+    <!-- ============ FLOW ============ -->
+    <h2 id="flow">Complete data flow — a smart greenhouse walkthrough</h2>
+    <p>Let's trace every layer in a real system. The farmer grows tomatoes and wants automated climate control.</p>
+
+    <div class="code-block">
+      <div class="bar"><i></i><i></i><i></i><span>data-flow.txt</span></div>
+<pre>
+1. PERCEPTION
+   DHT22 sensor reads: 38°C, 45% humidity
+
+2. PERCEPTION (MCU)
+   ESP32 formats as JSON: {"temp":38,"hum":45}
+
+3. NETWORK
+   Publishes to MQTT topic: greenhouse/zone1/telemetry
+
+4. NETWORK → PROCESSING
+   Cloud broker (HiveMQ) receives the message
+
+5. PROCESSING
+   Rule: "IF temp > 35 THEN trigger cooling AND send alert"
+
+6. PROCESSING → NETWORK
+   Publishes command: greenhouse/zone1/cmd  {"fan":"ON"}
+
+7. NETWORK → PERCEPTION
+   ESP32 subscribed to cmd topic; receives "fan ON"
+
+8. PERCEPTION (Actuator)
+   ESP32 drives relay → fan spins up
+
+9. APPLICATION
+   Dashboard turns red; farmer gets SMS: "Zone 1 too hot"
+</pre>
+    </div>
+
+    <div class="callout tip">
+      <span class="title">🔄 The full loop</span>
+      <p>Sense → transmit → process → act → notify. That's one complete cycle, and it repeats every few seconds.</p>
+    </div>
+
+    <!-- ============ EDGE ============ -->
+    <h2 id="edge">Edge vs Cloud — where should processing happen?</h2>
+    <p>
+      The processing layer doesn't have to be in the cloud. Sometimes it lives
+      right next to the device, at the <strong>edge</strong>. Real systems
+      often use both.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Aspect</th><th>Edge (on-device / local)</th><th>Cloud (remote servers)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Latency</strong></td><td>Milliseconds</td><td>50–500 ms+</td></tr>
+          <tr><td><strong>Reliability</strong></td><td>Works offline</td><td>Needs internet</td></tr>
+          <tr><td><strong>Compute power</strong></td><td>Limited</td><td>Unlimited</td></tr>
+          <tr><td><strong>Cost</strong></td><td>One-time hardware cost</td><td>Ongoing bandwidth + storage</td></tr>
+          <tr><td><strong>Privacy</strong></td><td>Data stays local</td><td>Data leaves your network</td></tr>
+          <tr><td><strong>Updates</strong></td><td>Manual or OTA</td><td>Instant, centralized</td></tr>
+          <tr><td><strong>Best for</strong></td><td>Safety, real-time control</td><td>Analytics, ML, history</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>When to choose which</h3>
+    <ul>
+      <li><strong>Edge:</strong> Emergency shutoff (gas leak → close valve in 50ms), offline factories, privacy-sensitive homes</li>
+      <li><strong>Cloud:</strong> Long-term data, ML training, dashboards for many users, cross-site analytics</li>
+      <li><strong>Both:</strong> Most professional systems. Edge handles real-time safety; cloud handles insight.</li>
+    </ul>
+
+    <div class="callout warn">
+      <span class="title">⚠ Rule of thumb</span>
+      <p>If a delay could cause damage or injury, process at the edge. If it's for insight or history, use the cloud.</p>
+    </div>
+
+    <!-- ============ COMPARE ============ -->
+    <h2 id="compare">Comparing architecture models</h2>
+    <p>Different frameworks describe IoT with 3, 4, 5, or even 7 layers. They're all variations of the same idea:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Layers</th><th>Best for</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>3-layer</strong></td><td>Perception · Network · Application</td><td>Simple explanations, quick designs</td></tr>
+          <tr><td><strong>4-layer ⭐</strong></td><td>Perception · Network · Processing · Application</td><td>Learning, real projects — <em>our choice</em></td></tr>
+          <tr><td><strong>5-layer</strong></td><td>+ Business layer</td><td>Enterprise, product strategy</td></tr>
+          <tr><td><strong>7-layer (IoTWF)</strong></td><td>Physical · Connectivity · Edge · Data · App · Biz · Mgmt</td><td>Cisco enterprise reference model</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>For learning and building, the <strong>4-layer model</strong> is the sweet spot: detailed enough to be useful, simple enough to remember.</p>
+
+    <!-- ============ SECURITY ============ -->
+    <h2 id="security">Security at every layer</h2>
+    <p>
+      IoT security is not one thing — it's a set of concerns at each layer. An
+      attacker only needs one weak link. Here's what to protect at each level.
+    </p>
+
+    <div class="kv-grid">
+      <div class="kv">
+        <div class="k">Perception Layer</div>
+        <div class="v">Physical tampering, rogue devices, firmware extraction. Use secure boot, signed firmware, tamper detection.</div>
+      </div>
+      <div class="kv">
+        <div class="k">Network Layer</div>
+        <div class="v">Eavesdropping, MITM, replay attacks. Use TLS, mutual authentication, unique keys per device.</div>
+      </div>
+      <div class="kv">
+        <div class="k">Processing Layer</div>
+        <div class="v">Data breaches, injection, DoS. Use access control, encryption at rest, rate limiting, audits.</div>
+      </div>
+      <div class="kv">
+        <div class="k">Application Layer</div>
+        <div class="v">Account takeover, XSS, weak auth. Use MFA, HTTPS everywhere, minimal permissions.</div>
+      </div>
+    </div>
+
+    <div class="callout danger">
+      <span class="title">🚨 Reality check</span>
+      <p>The Mirai botnet took down major internet services using default passwords on IoT cameras. Security is not optional — it's the difference between a product and a liability.</p>
+    </div>
+
+    <!-- ============ DESIGN ============ -->
+    <h2 id="design">Designing your own IoT system</h2>
+    <p>
+      Before writing any code, sketch your system using these 6 questions. Answer
+      them in order — each answer shapes the next.
+    </p>
+
+    <h3>The 6 design questions</h3>
+    <ol>
+      <li><strong>What am I measuring?</strong> → Determines sensors (Perception)</li>
+      <li><strong>Where does the sensor live?</strong> → Determines range/power (Network)</li>
+      <li><strong>How often does data need to move?</strong> → Determines protocol (Network)</li>
+      <li><strong>What decisions need to happen, and how fast?</strong> → Determines Edge vs Cloud (Processing)</li>
+      <li><strong>Who needs to see or act on this?</strong> → Determines UI (Application)</li>
+      <li><strong>What could go wrong?</strong> → Determines security and fail-safes (all layers)</li>
+    </ol>
+
+    <h3>Worked example: warehouse cold storage monitor</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Question</th><th>Answer</th><th>Layer</th></tr></thead>
+        <tbody>
+          <tr><td>What am I measuring?</td><td>Temperature (−30°C to +10°C)</td><td>Perception — DS18B20 sensor</td></tr>
+          <tr><td>Where does the sensor live?</td><td>Inside freezers, no Wi-Fi, needs years of battery</td><td>Network — LoRaWAN</td></tr>
+          <tr><td>How often?</td><td>Every 5 minutes</td><td>Network — MQTT-SN over LoRa</td></tr>
+          <tr><td>How fast must decisions happen?</td><td>Warning within 1 min if temp rises</td><td>Processing — Cloud rules engine</td></tr>
+          <tr><td>Who sees it?</td><td>Warehouse manager + compliance team</td><td>Application — Web dashboard + SMS alerts</td></tr>
+          <tr><td>What could go wrong?</td><td>Spoofed readings, data loss</td><td>Security — Encrypted payloads, signed messages</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ============ MISTAKES ============ -->
+    <h2 id="mistakes">Common beginner mistakes</h2>
+    <p>Learn from the mistakes everyone makes on their first few IoT projects:</p>
+    <ul>
+      <li><strong>Doing everything on the device.</strong> ESP32s are not servers. Push logic up when possible.</li>
+      <li><strong>Using HTTP when MQTT fits.</strong> HTTP is chatty and heavy. MQTT is built for IoT.</li>
+      <li><strong>Ignoring offline behavior.</strong> What happens when Wi-Fi drops? Real devices buffer and reconnect.</li>
+      <li><strong>Hardcoding credentials.</strong> Never bake Wi-Fi passwords into firmware. Use a config or provisioning flow.</li>
+      <li><strong>Skipping data validation.</strong> Sensors return garbage sometimes. Validate before acting.</li>
+      <li><strong>No rate limiting.</strong> A misbehaving device that publishes 1000 messages/sec can take down your broker.</li>
+      <li><strong>No logging.</strong> When something breaks at 3 AM, logs are your only friend.</li>
+      <li><strong>No plan for updates.</strong> Devices ship with bugs. Plan OTA (over-the-air) updates from day one.</li>
+    </ul>
+
+    <!-- ============ QUIZ ============ -->
+    <h2 id="quiz">Quiz — Test your understanding</h2>
+    <div class="quiz">
+      <h3>Quick check · 3 questions</h3>
+      <p>Click an option to see if you got it right.</p>
+
+      <div class="q" data-correct="b">
+        <div class="question">1. Which layer decides whether to trigger an alert?</div>
+        <div class="options">
+          <label><input type="radio" name="q1" value="a" /> Perception</label>
+          <label><input type="radio" name="q1" value="b" /> Processing</label>
+          <label><input type="radio" name="q1" value="c" /> Application</label>
+          <label><input type="radio" name="q1" value="d" /> Network</label>
+        </div>
+        <div class="feedback" data-correct="Correct! The processing layer contains the rules and logic that decide what actions to take." data-wrong="Not quite. Alerts are triggered by rules that live in the Processing layer."></div>
+      </div>
+
+      <div class="q" data-correct="c">
+        <div class="question">2. A battery-powered sensor in a remote field 5 km from the nearest town should use:</div>
+        <div class="options">
+          <label><input type="radio" name="q2" value="a" /> Wi-Fi</label>
+          <label><input type="radio" name="q2" value="b" /> Bluetooth</label>
+          <label><input type="radio" name="q2" value="c" /> LoRaWAN</label>
+          <label><input type="radio" name="q2" value="d" /> Ethernet</label>
+        </div>
+        <div class="feedback" data-correct="Correct! LoRaWAN is designed for long-range, low-power, low-bandwidth scenarios exactly like this." data-wrong="Not quite. For long range + low power, LoRaWAN is the right choice."></div>
+      </div>
+
+      <div class="q" data-correct="a">
+        <div class="question">3. Which flows UP the IoT stack?</div>
+        <div class="options">
+          <label><input type="radio" name="q3" value="a" /> Sensor telemetry (readings)</label>
+          <label><input type="radio" name="q3" value="b" /> Actuator commands</label>
+          <label><input type="radio" name="q3" value="c" /> Firmware updates</label>
+          <label><input type="radio" name="q3" value="d" /> User login</label>
+        </div>
+        <div class="feedback" data-correct="Correct! Telemetry (sensor data) flows up. Commands flow down." data-wrong="Not quite. Sensor readings (telemetry) flow up; commands flow down."></div>
+      </div>
+    </div>
+
+    <!-- ============ GLOSSARY ============ -->
+    <h2 id="glossary">Glossary</h2>
+    <div class="glossary">
+      <div class="term"><b>Perception Layer</b><span>The bottom layer where sensors and actuators touch the physical world.</span></div>
+      <div class="term"><b>Network Layer</b><span>Transports data between devices and servers using Wi-Fi, LoRaWAN, MQTT, etc.</span></div>
+      <div class="term"><b>Processing Layer</b><span>Middleware or cloud where data is stored, analyzed, and acted upon.</span></div>
+      <div class="term"><b>Application Layer</b><span>User-facing part: dashboards, apps, alerts, APIs.</span></div>
+      <div class="term"><b>Telemetry</b><span>Sensor data sent from a device to a server (flows UP the stack).</span></div>
+      <div class="term"><b>Gateway</b><span>A device that bridges a local protocol (Zigbee, LoRa) to IP networks.</span></div>
+      <div class="term"><b>Edge Computing</b><span>Processing data near the device instead of in the cloud.</span></div>
+      <div class="term"><b>MQTT</b><span>Lightweight pub/sub protocol, the most popular for IoT.</span></div>
+      <div class="term"><b>OTA</b><span>Over-the-Air — updating firmware remotely.</span></div>
+      <div class="term"><b>Telemetry vs Command</b><span>Telemetry = up (data). Command = down (actions). Both are essential.</span></div>
+    </div>
+
+    <!-- ============ TAKEAWAYS ============ -->
+    <div class="takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Every IoT system has 4 layers: Perception, Network, Processing, Application</li>
+        <li>Perception = sensors + actuators + microcontrollers (physical world)</li>
+        <li>Network = how data travels (Wi-Fi, MQTT, LoRaWAN, BLE)</li>
+        <li>Processing = where data is stored, analyzed, and acted upon (cloud or edge)</li>
+        <li>Application = what humans interact with (dashboards, apps, alerts)</li>
+        <li>Data flows up; commands flow down — remember both directions</li>
+        <li>Edge = fast, offline, private. Cloud = powerful, scalable, insight-rich</li>
+        <li>Security is a concern at every layer — not a single feature</li>
+        <li>Design your system on paper before writing a single line of code</li>
+        <li>Answer the 6 design questions for every new project</li>
+      </ul>
+    </div>
+
+    <nav class="lesson-nav">
+      <a href="01-01-what-is-iot.html">
+        <div>
+          <div class="label">← Previous</div>
+          <div class="title">1.1 What is IoT?</div>
+        </div>
+      </a>
+      <a href="01-03-protocols.html" class="next">
+        <div>
+          <div class="label">Next →</div>
+          <div class="title">1.3 Common Protocols</div>
+        </div>
+      </a>
+    </nav>
+  </article>
+
+</div>
+
+<footer>
+  <div class="container">© 2026 Codexa · <a href="./">Back to IoT Course</a></div>
+</footer>
+
+<script>
+  // Mobile menu
+  const menuToggle = document.getElementById('menuToggle');
+  const navLinks = document.getElementById('navLinks');
+  menuToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+
+  // Quiz logic
+  document.querySelectorAll('.q').forEach(q => {
+    const correct = q.dataset.correct;
+    const feedback = q.querySelector('.feedback');
+    q.querySelectorAll('input').forEach(input => {
+      input.addEventListener('change', () => {
+        if (input.value === correct) {
+          feedback.className = 'feedback correct';
+          feedback.textContent = feedback.dataset.correct;
+        } else {
+          feedback.className = 'feedback wrong';
+          feedback.textContent = feedback.dataset.wrong;
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
