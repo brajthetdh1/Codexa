@@ -1,1 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IoT Course — Codexa</title>
+<meta name="description" content="Learn Internet of Things (IoT) from scratch — sensors, microcontrollers, MQTT, cloud, and real-world projects." />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0b0f17;
+    --bg-soft: #111827;
+    --card: #151b26;
+    --border: #222c3c;
+    --text: #e6edf7;
+    --muted: #9aa8bd;
+    --brand: #6c5ce7;
+    --brand-2: #00d2b8;
+    --accent: #ffb020;
+    --radius: 14px;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+    --max: 1180px;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+  .container { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 20px; }
 
+  /* ============ HEADER ============ */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(11, 15, 23, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 70px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: 1.35rem; letter-spacing: -0.5px;
+  }
+  .logo-mark {
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    font-family: monospace; font-weight: 900;
+    color: #06121a; font-size: 1rem;
+  }
+  .logo span:last-child {
+    background: linear-gradient(90deg, var(--brand-2), var(--brand));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .nav-links {
+    display: flex; align-items: center; gap: 6px;
+    list-style: none;
+  }
+  .nav-links a {
+    padding: 9px 14px; border-radius: 9px;
+    font-size: .95rem; color: var(--muted); transition: .2s;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--bg-soft); }
+  .nav-links a.active { color: #fff; background: rgba(108,92,231,.18); }
+  .nav-cta {
+    padding: 9px 18px; border-radius: 9px;
+    font-size: .92rem; font-weight: 600; color: #fff;
+    background: linear-gradient(135deg, var(--brand), #8b7bff);
+    transition: .25s;
+  }
+  .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(108,92,231,.4); }
+  .menu-toggle {
+    display: none; background: none; border: none; cursor: pointer;
+    flex-direction: column; gap: 5px; padding: 8px;
+  }
+  .menu-toggle span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; }
+
+  /* ============ BREADCRUMB ============ */
+  .breadcrumb {
+    padding: 20px 0 0;
+    font-size: .85rem;
+    color: var(--muted);
+  }
+  .breadcrumb a { color: var(--muted); transition: .2s; }
+  .breadcrumb a:hover { color: var(--brand-2); }
+  .breadcrumb span { margin: 0 8px; opacity: .5; }
+  .breadcrumb strong { color: var(--text); font-weight: 600; }
+
+  /* ============ COURSE HERO ============ */
+  .course-hero {
+    padding: 40px 0 70px;
+    position: relative;
+    overflow: hidden;
+  }
+  .course-hero::before {
+    content: "";
+    position: absolute; top: -180px; right: -100px;
+    width: 550px; height: 550px;
+    background: radial-gradient(circle, rgba(0,210,184,.22), transparent 65%);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+  .hero-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 50px;
+    align-items: start;
+  }
+  .course-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: .82rem;
+    color: var(--brand-2);
+    background: rgba(0,210,184,.08);
+    margin-bottom: 18px;
+    font-weight: 600;
+  }
+  .course-hero h1 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    line-height: 1.15;
+    letter-spacing: -1.2px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+  .course-hero h1 .grad {
+    background: linear-gradient(90deg, var(--brand-2), var(--brand));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .course-hero .lede {
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin-bottom: 26px;
+    max-width: 620px;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 26px;
+    margin-bottom: 28px;
+    font-size: .9rem;
+    color: var(--muted);
+  }
+  .meta-row .item { display: flex; align-items: center; gap: 8px; }
+  .meta-row .item b { color: var(--text); font-weight: 600; }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 26px;
+    border-radius: 11px;
+    font-weight: 600; font-size: .98rem;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: .25s;
+  }
+  .btn-primary {
+    color: #fff;
+    background: linear-gradient(135deg, var(--brand), #8b7bff);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(108,92,231,.45); }
+  .btn-ghost {
+    color: var(--text);
+    border-color: var(--border);
+    background: var(--bg-soft);
+  }
+  .btn-ghost:hover { border-color: var(--brand); color: #fff; }
+
+  /* ============ ENROLL CARD ============ */
+  .enroll-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 90px;
+  }
+  .enroll-card h3 {
+    font-size: 1rem;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .enroll-list {
+    list-style: none;
+    display: grid;
+    gap: 12px;
+    margin-bottom: 20px;
+    font-size: .92rem;
+  }
+  .enroll-list li {
+    display: flex; justify-content: space-between;
+    color: var(--muted);
+  }
+  .enroll-list li b { color: var(--text); font-weight: 600; }
+  .enroll-card .btn { width: 100%; justify-content: center; }
+  .enroll-note {
+    text-align: center;
+    font-size: .8rem;
+    color: var(--muted);
+    margin-top: 12px;
+  }
+
+  /* ============ SECTION BASE ============ */
+  section.block { padding: 70px 0; }
+  section.alt { background: var(--bg-soft); }
+  .section-head { margin-bottom: 40px; }
+  .section-head .eyebrow {
+    display: inline-block;
+    font-size: .78rem; letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--brand-2);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .section-head h2 {
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    letter-spacing: -1px;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+  .section-head p { color: var(--muted); max-width: 640px; }
+
+  /* ============ WHAT YOU'LL LEARN ============ */
+  .learn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+  }
+  .learn-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    font-size: .94rem;
+    color: var(--muted);
+  }
+  .learn-item .check {
+    flex: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    background: rgba(0,210,184,.15);
+    color: var(--brand-2);
+    font-size: .75rem;
+    font-weight: 900;
+  }
+
+  /* ============ CURRICULUM (ACCORDION) ============ */
+  .curriculum { display: grid; gap: 12px; }
+  details.module {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: .25s;
+  }
+  details.module[open] { border-color: var(--brand); }
+  details.module summary {
+    cursor: pointer;
+    padding: 20px 22px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 14px;
+    font-weight: 600;
+    list-style: none;
+    user-select: none;
+  }
+  details.module summary::-webkit-details-marker { display: none; }
+  details.module summary::after {
+    content: "▾";
+    font-size: 1rem;
+    color: var(--muted);
+    transition: .25s;
+  }
+  details.module[open] summary::after { transform: rotate(180deg); color: var(--brand-2); }
+  .module-info { display: flex; align-items: center; gap: 14px; }
+  .module-num {
+    width: 34px; height: 34px;
+    flex: none;
+    display: grid; place-items: center;
+    border-radius: 9px;
+    background: rgba(108,92,231,.15);
+    color: #c7bfff;
+    font-weight: 700;
+    font-size: .85rem;
+  }
+  .module-title { font-size: 1rem; }
+  .module-duration {
+    font-size: .82rem;
+    color: var(--muted);
+    font-weight: 500;
+    margin-left: auto;
+    margin-right: 14px;
+  }
+  .module-body {
+    padding: 0 22px 22px 70px;
+    color: var(--muted);
+    font-size: .93rem;
+  }
+  .module-body ul {
+    list-style: none;
+    display: grid;
+    gap: 8px;
+  }
+  .module-body li {
+    padding-left: 18px;
+    position: relative;
+  }
+  .module-body li::before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: var(--brand-2);
+  }
+
+  /* ============ PROJECTS ============ */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 22px;
+  }
+  .project {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: .3s;
+  }
+  .project:hover { transform: translateY(-6px); border-color: var(--brand-2); box-shadow: var(--shadow); }
+  .project .icon {
+    width: 46px; height: 46px;
+    display: grid; place-items: center;
+    border-radius: 11px;
+    font-size: 1.3rem;
+    background: rgba(0,210,184,.12);
+    margin-bottom: 16px;
+  }
+  .project h3 { font-size: 1.05rem; margin-bottom: 8px; }
+  .project p { color: var(--muted); font-size: .9rem; }
+  .project .level {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: .74rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(108,92,231,.15);
+    color: #c7bfff;
+    font-weight: 600;
+  }
+
+  /* ============ REQUIREMENTS ============ */
+  .req-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .req-box h3 {
+    font-size: 1.05rem;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .req-box h3 .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--brand-2);
+    box-shadow: 0 0 10px var(--brand-2);
+  }
+  .req-box ul {
+    list-style: none;
+    display: grid;
+    gap: 12px;
+  }
+  .req-box li {
+    display: flex; gap: 12px; align-items: flex-start;
+    color: var(--muted);
+    font-size: .94rem;
+  }
+  .req-box li .mark {
+    flex: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: .72rem;
+    font-weight: 900;
+  }
+  .req-box li .mark.yes { background: rgba(0,210,184,.15); color: var(--brand-2); }
+  .req-box li .mark.no  { background: rgba(255,176,32,.15); color: var(--accent); }
+
+  /* ============ INSTRUCTOR ============ */
+  .instructor {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    flex-wrap: wrap;
+  }
+  .instructor .avatar {
+    width: 90px; height: 90px; flex: none;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    color: #06121a;
+  }
+  .instructor .info h3 { font-size: 1.15rem; margin-bottom: 4px; }
+  .instructor .info .role { color: var(--brand-2); font-size: .88rem; margin-bottom: 12px; font-weight: 600; }
+  .instructor .info p { color: var(--muted); font-size: .93rem; }
+
+  /* ============ CTA STRIP ============ */
+  .cta-strip {
+    background: linear-gradient(135deg, rgba(108,92,231,.18), rgba(0,210,184,.12));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 44px;
+    text-align: center;
+  }
+  .cta-strip h2 {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+  .cta-strip p { color: var(--muted); margin-bottom: 24px; }
+  .cta-strip .btn { margin: 0 auto; }
+
+  /* ============ FOOTER ============ */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 44px 0 26px;
+    background: #080c14;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 34px;
+    margin-bottom: 34px;
+  }
+  .footer-grid h4 { font-size: .92rem; margin-bottom: 14px; }
+  .footer-grid ul { list-style: none; display: grid; gap: 9px; }
+  .footer-grid a { color: var(--muted); font-size: .88rem; transition: .2s; }
+  .footer-grid a:hover { color: var(--brand-2); }
+  .footer-grid p { color: var(--muted); font-size: .88rem; max-width: 300px; margin-top: 12px; }
+  .footer-bottom {
+    border-top: 1px solid var(--border);
+    padding-top: 22px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    font-size: .84rem; color: var(--muted);
+  }
+  .socials { display: flex; gap: 10px; }
+  .socials a {
+    width: 36px; height: 36px;
+    display: grid; place-items: center;
+    border-radius: 9px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    transition: .2s;
+  }
+  .socials a:hover { border-color: var(--brand); color: #fff; transform: translateY(-2px); }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .enroll-card { position: static; }
+    .req-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .module-duration { display: none; }
+    .module-body { padding-left: 22px; }
+  }
+  @media (max-width: 720px) {
+    .menu-toggle { display: flex; }
+    .nav-links {
+      position: absolute;
+      top: 70px; left: 0; right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
+      padding: 14px 20px 22px;
+      background: var(--bg-soft);
+      border-bottom: 1px solid var(--border);
+      display: none;
+    }
+    .nav-links.open { display: flex; }
+    .nav-links a { padding: 12px 14px; }
+    .nav-cta { display: none; }
+    .cta-strip { padding: 30px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="container nav">
+    <a href="../../" class="logo">
+      <span class="logo-mark">&lt;/&gt;</span>
+      <span>Codexa</span>
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../../">Home</a></li>
+      <li><a href="../../courses/" class="active">Courses</a></li>
+      <li><a href="../../blog/">Blog</a></li>
+      <li><a href="../../about/">About</a></li>
+      <li><a href="../../contact/">Contact</a></li>
+    </ul>
+
+    <a href="#enroll" class="nav-cta">Enroll Now</a>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ================= BREADCRUMB ================= -->
+<div class="container breadcrumb">
+  <a href="../../">Home</a>
+  <span>/</span>
+  <a href="../../courses/">Courses</a>
+  <span>/</span>
+  <strong>IoT</strong>
+</div>
+
+<!-- ================= COURSE HERO ================= -->
+<section class="course-hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="course-tag">📡 Internet of Things · Beginner to Advanced</div>
+      <h1>Build the <span class="grad">connected world</span> with IoT</h1>
+      <p class="lede">
+        Go from blinking your first LED to deploying real IoT systems — sensors,
+        microcontrollers, MQTT, cloud dashboards, and end-to-end projects.
+      </p>
+
+      <div class="meta-row">
+        <div class="item">⏱ <b>16 hours</b> on-demand</div>
+        <div class="item">📚 <b>32 lessons</b></div>
+        <div class="item">🧪 <b>6 projects</b></div>
+        <div class="item">🌐 <b>English</b></div>
+        <div class="item">♾ <b>Lifetime access</b></div>
+      </div>
+
+      <div class="hero-actions">
+        <a href="#enroll" class="btn btn-primary">Enroll Now →</a>
+        <a href="#curriculum" class="btn btn-ghost">View Curriculum</a>
+      </div>
+    </div>
+
+    <!-- Enroll / Info card -->
+    <aside class="enroll-card" id="enroll">
+      <h3>Course at a glance</h3>
+      <ul class="enroll-list">
+        <li><span>Level</span><b>Beginner → Advanced</b></li>
+        <li><span>Duration</span><b>16 hours</b></li>
+        <li><span>Lessons</span><b>32</b></li>
+        <li><span>Projects</span><b>6 real builds</b></li>
+        <li><span>Certificate</span><b>Yes</b></li>
+        <li><span>Price</span><b style="color:var(--brand-2)">Free</b></li>
+      </ul>
+      <a href="#" class="btn btn-primary">Start Learning</a>
+      <p class="enroll-note">No credit card required · Cancel anytime</p>
+    </aside>
+  </div>
+</section>
+
+<!-- ================= WHAT YOU'LL LEARN ================= -->
+<section class="block alt">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">What you'll learn</span>
+      <h2>Skills you'll walk away with</h2>
+      <p>Everything you need to design, build, and deploy real IoT systems.</p>
+    </div>
+
+    <div class="learn-grid">
+      <div class="learn-item"><span class="check">✓</span> Understand core IoT architecture and how devices talk</div>
+      <div class="learn-item"><span class="check">✓</span> Program ESP32 and Arduino for real-world tasks</div>
+      <div class="learn-item"><span class="check">✓</span> Read data from sensors — temperature, motion, humidity</div>
+      <div class="learn-item"><span class="check">✓</span> Use MQTT for lightweight device communication</div>
+      <div class="learn-item"><span class="check">✓</span> Connect devices to the cloud (AWS IoT / Firebase)</div>
+      <div class="learn-item"><span class="check">✓</span> Build live dashboards with real-time data</div>
+      <div class="learn-item"><span class="check">✓</span> Secure your IoT devices and networks</div>
+      <div class="learn-item"><span class="check">✓</span> Deploy a complete IoT project end-to-end</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CURRICULUM ================= -->
+<section class="block" id="curriculum">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Curriculum</span>
+      <h2>Course modules</h2>
+      <p>6 modules · 32 lessons · 6 hands-on projects. Click a module to expand.</p>
+    </div>
+
+    <div class="curriculum">
+
+      <details class="module" open>
+        <summary>
+          <div class="module-info">
+            <span class="module-num">01</span>
+            <span class="module-title">Introduction to IoT</span>
+          </div>
+          <span class="module-duration">2h · 5 lessons</span>
+        </summary>
+        <div class="module-body">
+          <ul>
+            <li>What is IoT and why it matters</li>
+            <li>IoT architecture: devices, gateways, cloud</li>
+            <li>Common protocols overview</li>
+            <li>Hardware and software you'll need</li>
+            <li>Setting up your dev environment</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <div class="module-info">
+            <span class="module-num">02</span>
+            <span class="module-title">Microcontrollers & Electronics Basics</span>
+          </div>
+          <span class="module-duration">3h · 6 lessons</span>
+        </summary>
+        <div class="module-body">
+          <ul>
+            <li>Arduino vs ESP32 vs Raspberry Pi</li>
+            <li>GPIO, digital & analog signals</li>
+            <li>Reading schematics and wiring</li>
+            <li>Your first sketch: blink an LED</li>
+            <li>Buttons, resistors, and pull-ups</li>
+            <li>Debugging hardware like a pro</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <div class="module-info">
+            <span class="module-num">03</span>
+            <span class="module-title">Sensors & Actuators</span>
+          </div>
+          <span class="module-duration">3h · 6 lessons</span>
+        </summary>
+        <div class="module-body">
+          <ul>
+            <li>Temperature & humidity (DHT22)</li>
+            <li>Motion detection (PIR)</li>
+            <li>Distance sensing (ultrasonic)</li>
+            <li>Light sensors & LDRs</li>
+            <li>Relays and controlling motors</li>
+            <li>Building a sensor data pipeline</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <div class="module-info">
+            <span class="module-num">04</span>
+            <span class="module-title">Connectivity & Protocols</span>
+          </div>
+          <span class="module-duration">3h · 6 lessons</span>
+        </summary>
+        <div class="module-body">
+          <ul>
+            <li>Wi-Fi, BLE, and LoRaWAN overview</li>
+            <li>HTTP vs MQTT vs CoAP</li>
+            <li>Publishing sensor data over MQTT</li>
+            <li>Using free MQTT brokers</li>
+            <li>Subscribing from a web client</li>
+            <li>Handling offline devices gracefully</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <div class="module-info">
+            <span class="module-num">05</span>
+            <span class="module-title">Cloud & Dashboards</span>
+          </div>
+          <span class="module-duration">3h · 5 lessons</span>
+        </summary>
+        <div class="module-body">
+          <ul>
+            <li>Intro to AWS IoT Core & Firebase</li>
+            <li>Sending data from device to cloud</li>
+            <li>Storing time-series data</li>
+            <li>Building a live dashboard (Node-RED / Grafana)</li>
+            <li>Sending alerts and notifications</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="module">
+        <summary>
+          <div class="module-info">
+            <span class="module-num">06</span>
+            <span class="module-title">Security & Real Projects</span>
+          </div>
+          <span class="module-duration">2h · 4 lessons</span>
+        </summary>
+        <div class="module-body">
+          <ul>
+            <li>IoT security fundamentals</li>
+            <li>Securing MQTT with TLS & auth</li>
+            <li>OTA (Over-the-Air) firmware updates</li>
+            <li>Final project: full IoT system</li>
+          </ul>
+        </div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROJECTS ================= -->
+<section class="block alt">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Hands-on projects</span>
+      <h2>Build these real things</h2>
+      <p>Every module ends with a project you can show off in your portfolio.</p>
+    </div>
+
+    <div class="projects-grid">
+      <div class="project">
+        <div class="icon">💡</div>
+        <h3>Smart Home Light</h3>
+        <p>Control LEDs from your phone using ESP32 + Wi-Fi + a simple web UI.</p>
+        <span class="level">Beginner</span>
+      </div>
+      <div class="project">
+        <div class="icon">🌡️</div>
+        <h3>Weather Station</h3>
+        <p>Read temperature & humidity, publish over MQTT, and log to the cloud.</p>
+        <span class="level">Beginner</span>
+      </div>
+      <div class="project">
+        <div class="icon">🚨</div>
+        <h3>Motion Alert System</h3>
+        <p>PIR sensor triggers a notification via MQTT and email on movement.</p>
+        <span class="level">Intermediate</span>
+      </div>
+      <div class="project">
+        <div class="icon">📊</div>
+        <h3>Live Sensor Dashboard</h3>
+        <p>Real-time graphs of sensor data using Node-RED and Grafana.</p>
+        <span class="level">Intermediate</span>
+      </div>
+      <div class="project">
+        <div class="icon">🌱</div>
+        <h3>Smart Plant Waterer</h3>
+        <p>Soil moisture sensor + relay + pump that waters your plant automatically.</p>
+        <span class="level">Intermediate</span>
+      </div>
+      <div class="project">
+        <div class="icon">🔐</div>
+        <h3>Secure IoT Gateway</h3>
+        <p>Deploy an end-to-end IoT system with TLS, auth, and OTA updates.</p>
+        <span class="level">Advanced</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REQUIREMENTS & AUDIENCE ================= -->
+<section class="block">
+  <div class="container">
+    <div class="req-grid">
+      <div class="req-box">
+        <h3><span class="dot"></span> Requirements</h3>
+        <ul>
+          <li><span class="mark yes">✓</span> Basic programming knowledge (any language)</li>
+          <li><span class="mark yes">✓</span> Curiosity about hardware and electronics</li>
+          <li><span class="mark yes">✓</span> A computer (Windows, Mac, or Linux)</li>
+          <li><span class="mark no">!</span> No prior electronics experience needed</li>
+          <li><span class="mark no">!</span> Hardware kit optional (simulators included)</li>
+        </ul>
+      </div>
+
+      <div class="req-box">
+        <h3><span class="dot"></span> Who this course is for</h3>
+        <ul>
+          <li><span class="mark yes">✓</span> Developers curious about hardware</li>
+          <li><span class="mark yes">✓</span> Students exploring IoT careers</li>
+          <li><span class="mark yes">✓</span> Makers who want to go beyond Arduino tutorials</li>
+          <li><span class="mark yes">✓</span> Engineers adding IoT to their skill set</li>
+          <li><span class="mark yes">✓</span> Anyone who loves building real things</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INSTRUCTOR ================= -->
+<section class="block alt">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Instructor</span>
+      <h2>Meet your teacher</h2>
+    </div>
+
+    <div class="instructor">
+      <div class="avatar">A</div>
+      <div class="info">
+        <h3>Aarav Mehta</h3>
+        <div class="role">Embedded Systems & IoT Engineer</div>
+        <p>
+          Aarav has spent 8+ years building IoT products — from smart factories to
+          consumer wearables. He's taught over 15,000 students how to bring
+          hardware and software together. His teaching style is practical, clear,
+          and always project-driven.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA STRIP ================= -->
+<section class="block">
+  <div class="container">
+    <div class="cta-strip">
+      <h2>Ready to build your first IoT system?</h2>
+      <p>Join thousands of learners building the connected future with Codexa
