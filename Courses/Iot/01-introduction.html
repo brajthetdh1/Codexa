@@ -1,1 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Module 01 — Introduction to IoT | Codexa</title>
+<meta name="description" content="Learn what IoT is, its architecture, protocols, and how to set up your development environment." />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0b0f17; --bg-soft: #111827; --card: #151b26;
+    --border: #222c3c; --text: #e6edf7; --muted: #9aa8bd;
+    --brand: #6c5ce7; --brand-2: #00d2b8; --accent: #ffb020;
+    --radius: 14px; --shadow: 0 10px 30px rgba(0,0,0,.35);
+    --max: 1180px;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .container { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 20px; }
 
+  /* ============ HEADER ============ */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(11,15,23,.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav { display: flex; align-items: center; justify-content: space-between; height: 70px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.35rem; letter-spacing: -.5px; }
+  .logo-mark {
+    width: 34px; height: 34px; display: grid; place-items: center;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    font-family: monospace; font-weight: 900; color: #06121a; font-size: 1rem;
+  }
+  .logo span:last-child {
+    background: linear-gradient(90deg, var(--brand-2), var(--brand));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .nav-links { display: flex; align-items: center; gap: 6px; list-style: none; }
+  .nav-links a { padding: 9px 14px; border-radius: 9px; font-size: .95rem; color: var(--muted); transition: .2s; }
+  .nav-links a:hover { color: var(--text); background: var(--bg-soft); }
+  .nav-links a.active { color: #fff; background: rgba(108,92,231,.18); }
+  .menu-toggle { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; padding: 8px; }
+  .menu-toggle span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; }
+
+  /* ============ BREADCRUMB ============ */
+  .breadcrumb { padding: 20px 0 0; font-size: .85rem; color: var(--muted); }
+  .breadcrumb a { color: var(--muted); transition: .2s; }
+  .breadcrumb a:hover { color: var(--brand-2); }
+  .breadcrumb span { margin: 0 8px; opacity: .5; }
+  .breadcrumb strong { color: var(--text); font-weight: 600; }
+
+  /* ============ PROGRESS ============ */
+  .progress-wrap { background: var(--bg-soft); border-bottom: 1px solid var(--border); padding: 14px 0; }
+  .progress-inner { display: flex; align-items: center; gap: 16px; font-size: .85rem; color: var(--muted); }
+  .progress-bar { flex: 1; height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--brand), var(--brand-2)); border-radius: 999px; }
+  .progress-label b { color: var(--brand-2); }
+
+  /* ============ LAYOUT ============ */
+  .lesson-layout { display: grid; grid-template-columns: 260px 1fr; gap: 40px; padding: 40px 0 80px; }
+
+  /* ============ SIDEBAR ============ */
+  .sidebar { position: sticky; top: 90px; align-self: start; max-height: calc(100vh - 110px); overflow-y: auto; padding-right: 8px; }
+  .sidebar h3 { font-size: .78rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .sidebar ul { list-style: none; display: grid; gap: 4px; }
+  .sidebar a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 9px; font-size: .88rem; color: var(--muted); transition: .2s; }
+  .sidebar a:hover { color: var(--text); background: var(--bg-soft); }
+  .sidebar a.active { color: #fff; background: rgba(108,92,231,.18); }
+  .sidebar .num {
+    width: 24px; height: 24px; flex: none; display: grid; place-items: center;
+    border-radius: 6px; background: var(--bg); border: 1px solid var(--border);
+    font-size: .72rem; font-weight: 700;
+  }
+  .sidebar a.active .num {
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    color: #06121a; border-color: transparent;
+  }
+
+  /* ============ LESSON ============ */
+  .lesson h1 { font-size: clamp(1.6rem, 3.5vw, 2.3rem); letter-spacing: -1px; font-weight: 800; line-height: 1.2; margin-bottom: 14px; }
+  .lesson .meta {
+    display: flex; flex-wrap: wrap; gap: 14px 22px; font-size: .85rem;
+    color: var(--muted); margin-bottom: 26px; padding-bottom: 26px;
+    border-bottom: 1px solid var(--border);
+  }
+  .lesson h2 { font-size: 1.4rem; letter-spacing: -.5px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .lesson h3 { font-size: 1.1rem; margin: 28px 0 12px; }
+  .lesson p { color: var(--muted); margin-bottom: 16px; }
+  .lesson ul, .lesson ol { color: var(--muted); margin: 0 0 18px 22px; }
+  .lesson li { margin-bottom: 8px; }
+  .lesson strong { color: var(--text); }
+  .lesson code {
+    font-family: 'Fira Code', Consolas, monospace;
+    background: var(--bg-soft); border: 1px solid var(--border);
+    padding: 2px 7px; border-radius: 6px; font-size: .86em; color: var(--brand-2);
+  }
+
+  /* ============ CALLOUTS ============ */
+  .callout { border-radius: 12px; padding: 18px 20px; margin: 22px 0; border-left: 4px solid var(--brand); background: var(--card); font-size: .94rem; }
+  .callout.tip { border-left-color: var(--brand-2); }
+  .callout.warn { border-left-color: var(--accent); }
+  .callout .title { font-weight: 700; color: var(--text); display: block; margin-bottom: 6px; }
+  .callout p { margin: 0; color: var(--muted); }
+
+  /* ============ CODE BLOCK ============ */
+  .code-block { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 22px 0; }
+  .code-block .bar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; background: #0e1420; border-bottom: 1px solid var(--border); }
+  .code-block .bar i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .code-block .bar i:nth-child(1) { background: #ff5f57; }
+  .code-block .bar i:nth-child(2) { background: #febc2e; }
+  .code-block .bar i:nth-child(3) { background: #28c840; }
+  .code-block .bar span { margin-left: auto; font-size: .72rem; color: var(--muted); font-family: monospace; }
+  .code-block pre { padding: 18px; font-family: 'Fira Code', Consolas, monospace; font-size: .86rem; line-height: 1.7; overflow-x: auto; color: #c3e88d; }
+
+  /* ============ TAKEAWAYS ============ */
+  .takeaways {
+    background: linear-gradient(135deg, rgba(108,92,231,.12), rgba(0,210,184,.08));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 24px; margin: 30px 0;
+  }
+  .takeaways h3 { margin: 0 0 14px; color: var(--brand-2); font-size: 1rem; letter-spacing: .5px; text-transform: uppercase; }
+  .takeaways ul { list-style: none; margin: 0; display: grid; gap: 10px; }
+  .takeaways li { display: flex; gap: 10px; align-items: flex-start; color: var(--muted); font-size: .94rem; margin: 0; }
+  .takeaways li::before { content: "✓"; color: var(--brand-2); font-weight: 900; flex: none; }
+
+  /* ============ LESSON NAV ============ */
+  .lesson-nav { display: flex; justify-content: space-between; gap: 16px; margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border); }
+  .lesson-nav a {
+    display: flex; align-items: center; gap: 12px; padding: 16px 22px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    transition: .25s; flex: 1; max-width: 320px;
+  }
+  .lesson-nav a:hover { border-color: var(--brand); transform: translateY(-2px); }
+  .lesson-nav a.next { margin-left: auto; text-align: right; justify-content: flex-end; }
+  .lesson-nav .label { font-size: .74rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .lesson-nav .title { font-size: .95rem; font-weight: 600; color: var(--text); }
+
+  /* ============ FOOTER ============ */
+  footer { border-top: 1px solid var(--border); padding: 34px 0 22px; background: #080c14; font-size: .85rem; color: var(--muted); text-align: center; }
+  footer a { color: var(--brand-2); }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    .lesson-layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; max-height: none; overflow: visible; }
+    .sidebar ul { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); display: grid; }
+  }
+  @media (max-width: 720px) {
+    .menu-toggle { display: flex; }
+    .nav-links {
+      position: absolute; top: 70px; left: 0; right: 0;
+      flex-direction: column; align-items: stretch; gap: 4px;
+      padding: 14px 20px 22px; background: var(--bg-soft);
+      border-bottom: 1px solid var(--border); display: none;
+    }
+    .nav-links.open { display: flex; }
+    .nav-links a { padding: 12px 14px; }
+    .lesson-nav { flex-direction: column; }
+    .lesson-nav a { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header>
+  <div class="container nav">
+    <a href="../../../" class="logo">
+      <span class="logo-mark">&lt;/&gt;</span>
+      <span>Codexa</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../../../">Home</a></li>
+      <li><a href="../../" class="active">Courses</a></li>
+      <li><a href="../../../Blog/">Blog</a></li>
+      <li><a href="../../../About/">About</a></li>
+      <li><a href="../../../Contact/">Contact</a></li>
+    </ul>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ============ BREADCRUMB ============ -->
+<div class="container breadcrumb">
+  <a href="../../../">Home</a><span>/</span>
+  <a href="../../">Courses</a><span>/</span>
+  <a href="./">Iot</a><span>/</span>
+  <strong>Module 01</strong>
+</div>
+
+<!-- ============ PROGRESS ============ -->
+<div class="progress-wrap">
+  <div class="container progress-inner">
+    <span class="progress-label">Progress: <b>1 of 6</b></span>
+    <div class="progress-bar"><div class="progress-fill" style="width:16.6%"></div></div>
+    <span>16%</span>
+  </div>
+</div>
+
+<!-- ============ LESSON ============ -->
+<div class="container lesson-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h3>Modules</h3>
+    <ul>
+      <li><a href="01-introduction.html" class="active"><span class="num">01</span> Introduction to IoT</a></li>
+      <li><a href="02-microcontrollers.html"><span class="num">02</span> Microcontrollers</a></li>
+      <li><a href="03-sensors-actuators.html"><span class="num">03</span> Sensors & Actuators</a></li>
+      <li><a href="04-connectivity.html"><span class="num">04</span> Connectivity</a></li>
+      <li><a href="05-cloud-dashboards.html"><span class="num">05</span> Cloud & Dashboards</a></li>
+      <li><a href="06-security-projects.html"><span class="num">06</span> Security & Projects</a></li>
+    </ul>
+  </aside>
+
+  <!-- CONTENT -->
+  <article class="lesson">
+    <h1>Module 01 — Introduction to IoT</h1>
+    <div class="meta">
+      <span>⏱ 2 hours</span>
+      <span>📚 5 lessons</span>
+      <span>🎯 Beginner</span>
+      <span>🧪 1 project</span>
+    </div>
+
+    <p>
+      Welcome to the Internet of Things! In this module, you'll understand what IoT
+      actually is (beyond the buzzword), how connected devices work together, and
+      how to set up everything you need to start building.
+    </p>
+
+    <div class="callout tip">
+      <span class="title">💡 What you'll learn</span>
+      <p>What IoT is, the 4-layer architecture, common protocols, and how to prepare your development environment.</p>
+    </div>
+
+    <h2>1.1 What is IoT?</h2>
+    <p>
+      The <strong>Internet of Things (IoT)</strong> is the network of physical devices —
+      sensors, appliances, machines, wearables — that are connected to the internet
+      and can collect, share, and act on data.
+    </p>
+    <p>Examples you already use:</p>
+    <ul>
+      <li><strong>Smart home:</strong> Alexa, Google Home, smart bulbs, thermostats</li>
+      <li><strong>Wearables:</strong> Fitness bands, smartwatches</li>
+      <li><strong>Industry:</strong> Predictive maintenance sensors on factory machines</li>
+      <li><strong>Agriculture:</strong> Soil moisture monitors that trigger irrigation</li>
+      <li><strong>Healthcare:</strong> Remote patient monitoring devices</li>
+    </ul>
+
+    <div class="callout">
+      <span class="title">📌 Key idea</span>
+      <p>IoT is not just "devices connected to the internet." It's the full loop: <strong>sense → transmit → process → act</strong>.</p>
+    </div>
+
+    <h2>1.2 The IoT Architecture (4 Layers)</h2>
+    <p>Every IoT system, from a smart bulb to a smart city, fits into these four layers:</p>
+    <ol>
+      <li><strong>Perception Layer</strong> — Sensors and actuators that interact with the physical world</li>
+      <li><strong>Network Layer</strong> — Wi-Fi, Bluetooth, LoRaWAN, cellular that transmit data</li>
+      <li><strong>Processing Layer</strong> — Cloud or edge computing that analyzes and stores data</li>
+      <li><strong>Application Layer</strong> — Dashboards, apps, and alerts users interact with</li>
+    </ol>
+
+    <div class="code-block">
+      <div class="bar"><i></i><i></i><i></i><span>iot-architecture.txt</span></div>
+<pre>
+┌──────────────────────────────┐
+│  Application Layer            │  ← Dashboards, mobile apps
+├──────────────────────────────┤
+│  Processing Layer             │  ← Cloud / Edge compute
+├──────────────────────────────┤
+│  Network Layer                │  ← Wi-Fi, MQTT, LoRaWAN
+├──────────────────────────────┤
+│  Perception Layer             │  ← Sensors, actuators
+└──────────────────────────────┘
+</pre>
+    </div>
+
+    <h2>1.3 Common IoT Protocols</h2>
+    <p>Devices speak many "languages." Here are the ones you'll actually use:</p>
+    <ul>
+      <li><strong>MQTT</strong> — Lightweight pub/sub. Ideal for low-power devices. ⭐ Most popular</li>
+      <li><strong>HTTP/REST</strong> — Familiar but heavier. Fine for occasional updates.</li>
+      <li><strong>CoAP</strong> — Like HTTP but designed for constrained devices.</li>
+      <li><strong>BLE (Bluetooth Low Energy)</strong> — Short-range, low-power. Great for wearables.</li>
+      <li><strong>LoRaWAN</strong> — Long-range, low-power. Used in smart agriculture and cities.</li>
+      <li><strong>Zigbee / Z-Wave</strong> — Mesh networks for smart homes.</li>
+    </ul>
+
+    <div class="callout tip">
+      <span class="title">✅ Rule of thumb</span>
+      <p>If you're unsure which protocol to use, start with <strong>MQTT over Wi-Fi</strong>. It covers 80% of hobby and small commercial projects.</p>
+    </div>
+
+    <h2>1.4 Hardware & Software You'll Need</h2>
+    <p>You don't need expensive gear to get started. Here's the minimum:</p>
+    <ul>
+      <li><strong>Microcontroller:</strong> ESP32 (~$5) or Arduino Uno (~$15)</li>
+      <li><strong>Sensors:</strong> DHT22 (temp/humidity), PIR (motion), ultrasonic (distance)</li>
+      <li><strong>Breadboard + jumper wires</strong> — for prototyping without soldering</li>
+      <li><strong>USB cable</strong> — to connect your board to your computer</li>
+    </ul>
+    <p>Free software we'll use:</p>
+    <ul>
+      <li><strong>Arduino IDE</strong> or <strong>PlatformIO</strong> (VS Code extension)</li>
+      <li><strong>MQTT Explorer</strong> — visual MQTT client</li>
+      <li><strong>Node-RED</strong> — drag-and-drop IoT flow builder</li>
+      <li><strong>Free MQTT broker:</strong> HiveMQ, EMQX, or Mosquitto</li>
+    </ul>
+
+    <div class="callout warn">
+      <span class="title">⚠ No hardware yet?</span>
+      <p>That's fine! We'll use <strong>Wokwi</strong> and <strong>Tinkercad Circuits</strong> — free online simulators — so you can follow along without buying anything.</p>
+    </div>
+
+    <h2>1.5 Setting Up Your Dev Environment</h2>
+    <ol>
+      <li>Download and install <strong>Arduino IDE</strong> from arduino.cc</li>
+      <li>Add ESP32 board support (Preferences → Additional Board URLs)</li>
+      <li>Install the <strong>PubSubClient</strong> and <strong>DHT sensor</strong> libraries</li>
+      <li>Plug in your ESP32 and select the correct board + port</li>
+      <li>Upload the classic <code>Blink</code> example to verify everything works</li>
+    </ol>
+
+    <div class="code-block">
+      <div class="bar"><i></i><i></i><i></i><span>blink.ino</span></div>
+<pre>
+void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(1000);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(1000);
+}
+</pre>
+    </div>
+
+    <p>If your LED blinks, your environment is ready. ✅</p>
+
+    <h2>🎯 Mini Project — Blink an LED</h2>
+    <p>
+      Your first IoT "hello world": make the built-in LED on your ESP32 blink once
+      per second. Then modify the code to blink in an SOS pattern
+      (3 short, 3 long, 3 short).
+    </p>
+
+    <div class="takeaways">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>IoT = devices + network + cloud + apps, forming a sense → transmit → process → act loop</li>
+        <li>Every IoT system has 4 layers: Perception, Network, Processing, Application</li>
+        <li>MQTT is the most important protocol for IoT — you'll use it constantly</li>
+        <li>ESP32 is the best beginner board: cheap, powerful, Wi-Fi + Bluetooth built-in</li>
+        <li>You can start without hardware using free simulators</li>
+      </ul>
+    </div>
+
+    <!-- LESSON NAV -->
+    <nav class="lesson-nav">
+      <a href="./">
+        <div>
+          <div class="label">← Course Home</div>
+          <div class="title">IoT Course Overview</div>
+        </div>
+      </a>
+      <a href="02-microcontrollers.html" class="next">
+        <div>
+          <div class="label">Next →</div>
+          <div class="title">Module 02 — Microcontrollers</div>
+        </div>
+      </a>
+    </nav>
+  </article>
+
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container">
+    © 2026 Codexa · <a href="./">Back to IoT Course</a>
+  </div>
+</footer>
+
+<!-- ============ SCRIPT ============ -->
+<script>
+  const menuToggle = document.getElementById('menuToggle');
+  const navLinks = document.getElementById('navLinks');
+  menuToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+</script>
+
+</body>
+</html>
