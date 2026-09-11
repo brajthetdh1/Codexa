@@ -3,21 +3,23 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>1.2 IoT Architecture — Codexa</title>
-<meta name="description" content="Learn the 4-layer IoT architecture: Perception, Network, Processing, and Application layers explained." />
+<title>1.2 IoT Architecture — Deep Dive | Codexa</title>
+<meta name="description" content="A complete guide to the 4-layer IoT architecture with real examples, edge vs cloud, security, and design patterns." />
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --bg: #0b0f17; --bg-soft: #111827; --card: #151b26;
     --border: #222c3c; --text: #e6edf7; --muted: #9aa8bd;
     --brand: #6c5ce7; --brand-2: #00d2b8; --accent: #ffb020;
+    --danger: #ff5f57;
     --radius: 14px; --max: 1180px;
   }
   html { scroll-behavior: smooth; }
-  body { font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; -webkit-font-smoothing: antialiased; }
   a { color: inherit; text-decoration: none; }
   .container { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 20px; }
 
+  /* ============ HEADER ============ */
   header { position: sticky; top: 0; z-index: 100; background: rgba(11,15,23,.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
   .nav { display: flex; align-items: center; justify-content: space-between; height: 70px; }
   .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.35rem; letter-spacing: -.5px; }
@@ -30,23 +32,27 @@
   .menu-toggle { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; padding: 8px; }
   .menu-toggle span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; }
 
+  /* ============ BREADCRUMB ============ */
   .breadcrumb { padding: 20px 0 0; font-size: .85rem; color: var(--muted); }
   .breadcrumb a { color: var(--muted); transition: .2s; }
   .breadcrumb a:hover { color: var(--brand-2); }
   .breadcrumb span { margin: 0 8px; opacity: .5; }
   .breadcrumb strong { color: var(--text); font-weight: 600; }
 
+  /* ============ PROGRESS ============ */
   .progress-wrap { background: var(--bg-soft); border-bottom: 1px solid var(--border); padding: 14px 0; }
   .progress-inner { display: flex; align-items: center; gap: 16px; font-size: .85rem; color: var(--muted); }
   .progress-bar { flex: 1; height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; }
   .progress-fill { height: 100%; background: linear-gradient(90deg, var(--brand), var(--brand-2)); border-radius: 999px; }
   .progress-label b { color: var(--brand-2); }
 
+  /* ============ LAYOUT ============ */
   .lesson-layout { display: grid; grid-template-columns: 260px 1fr; gap: 40px; padding: 40px 0 80px; }
 
+  /* ============ SIDEBAR ============ */
   .sidebar { position: sticky; top: 90px; align-self: start; max-height: calc(100vh - 110px); overflow-y: auto; padding-right: 8px; }
   .sidebar h3 { font-size: .78rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
-  .sidebar h4 { font-size: .74rem; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 16px 0 8px; padding-left: 4px; }
+  .sidebar h4 { font-size: .74rem; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; padding-left: 4px; }
   .sidebar ul { list-style: none; display: grid; gap: 3px; }
   .sidebar a { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; font-size: .85rem; color: var(--muted); transition: .2s; }
   .sidebar a:hover { color: var(--text); background: var(--bg-soft); }
@@ -56,22 +62,34 @@
   .sidebar .num { width: 22px; height: 22px; flex: none; display: grid; place-items: center; border-radius: 6px; background: var(--bg); border: 1px solid var(--border); font-size: .68rem; font-weight: 700; }
   .sidebar a.active .num { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #06121a; border-color: transparent; }
 
-  .lesson h1 { font-size: clamp(1.6rem, 3.5vw, 2.3rem); letter-spacing: -1px; font-weight: 800; line-height: 1.2; margin-bottom: 14px; }
+  /* TOC */
+  .toc { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-top: 20px; }
+  .toc h4 { margin: 0 0 8px; padding: 0; }
+  .toc ul { gap: 2px; }
+  .toc a { padding: 6px 8px; font-size: .8rem; }
+
+  /* ============ LESSON ============ */
+  .lesson h1 { font-size: clamp(1.7rem, 3.5vw, 2.4rem); letter-spacing: -1px; font-weight: 800; line-height: 1.2; margin-bottom: 14px; }
   .lesson .meta { display: flex; flex-wrap: wrap; gap: 14px 22px; font-size: .85rem; color: var(--muted); margin-bottom: 26px; padding-bottom: 26px; border-bottom: 1px solid var(--border); }
-  .lesson h2 { font-size: 1.35rem; letter-spacing: -.5px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-  .lesson h3 { font-size: 1.08rem; margin: 26px 0 12px; }
+  .lesson h2 { font-size: 1.45rem; letter-spacing: -.5px; margin: 50px 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .lesson h3 { font-size: 1.12rem; margin: 30px 0 12px; color: #dbe3f0; }
+  .lesson h4 { font-size: 1rem; margin: 22px 0 10px; color: var(--text); }
   .lesson p { color: var(--muted); margin-bottom: 16px; }
   .lesson ul, .lesson ol { color: var(--muted); margin: 0 0 18px 22px; }
   .lesson li { margin-bottom: 8px; }
   .lesson strong { color: var(--text); }
   .lesson code { font-family: 'Fira Code', Consolas, monospace; background: var(--bg-soft); border: 1px solid var(--border); padding: 2px 7px; border-radius: 6px; font-size: .86em; color: var(--brand-2); }
+  .lesson em { color: #c7bfff; font-style: normal; }
 
+  /* ============ CALLOUTS ============ */
   .callout { border-radius: 12px; padding: 18px 20px; margin: 22px 0; border-left: 4px solid var(--brand); background: var(--card); font-size: .94rem; }
   .callout.tip { border-left-color: var(--brand-2); }
   .callout.warn { border-left-color: var(--accent); }
+  .callout.danger { border-left-color: var(--danger); }
   .callout .title { font-weight: 700; color: var(--text); display: block; margin-bottom: 6px; }
   .callout p { margin: 0; color: var(--muted); }
 
+  /* ============ CODE BLOCK ============ */
   .code-block { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 22px 0; }
   .code-block .bar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; background: #0e1420; border-bottom: 1px solid var(--border); }
   .code-block .bar i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
@@ -79,25 +97,65 @@
   .code-block .bar i:nth-child(2) { background: #febc2e; }
   .code-block .bar i:nth-child(3) { background: #28c840; }
   .code-block .bar span { margin-left: auto; font-size: .72rem; color: var(--muted); font-family: monospace; }
-  .code-block pre { padding: 18px; font-family: 'Fira Code', Consolas, monospace; font-size: .86rem; line-height: 1.7; overflow-x: auto; color: #c3e88d; }
+  .code-block pre { padding: 18px; font-family: 'Fira Code', Consolas, monospace; font-size: .85rem; line-height: 1.7; overflow-x: auto; color: #c3e88d; }
 
+  /* ============ LAYERS CARDS ============ */
   .layers { display: grid; gap: 14px; margin: 26px 0; }
   .layer { display: flex; gap: 18px; align-items: flex-start; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: .25s; }
   .layer:hover { border-color: var(--brand); transform: translateX(4px); }
-  .layer .badge { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 11px; font-size: 1.3rem; }
+  .layer .badge { width: 46px; height: 46px; flex: none; display: grid; place-items: center; border-radius: 11px; font-size: 1.35rem; }
   .layer.app .badge { background: rgba(255,176,32,.15); }
   .layer.proc .badge { background: rgba(108,92,231,.18); }
   .layer.net .badge { background: rgba(0,210,184,.15); }
   .layer.perc .badge { background: rgba(255,95,87,.15); }
-  .layer h3 { font-size: 1.02rem; margin: 0 0 6px; }
+  .layer h3 { font-size: 1.05rem; margin: 0 0 6px; }
   .layer p { font-size: .92rem; margin: 0; }
 
-  .takeaways { background: linear-gradient(135deg, rgba(108,92,231,.12), rgba(0,210,184,.08)); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin: 30px 0; }
+  /* ============ TABLES ============ */
+  .table-wrap { overflow-x: auto; margin: 22px 0; border-radius: 12px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  th, td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--bg-soft); color: var(--text); font-weight: 700; font-size: .82rem; text-transform: uppercase; letter-spacing: .5px; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(108,92,231,.05); }
+  td strong { color: var(--text); }
+
+  /* ============ KEY-VALUE GRID ============ */
+  .kv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 22px 0; }
+  .kv { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  .kv .k { font-size: .78rem; letter-spacing: 1px; text-transform: uppercase; color: var(--brand-2); margin-bottom: 6px; font-weight: 700; }
+  .kv .v { font-size: .93rem; color: var(--muted); }
+
+  /* ============ QUIZ ============ */
+  .quiz { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; margin: 30px 0; }
+  .quiz h3 { margin: 0 0 6px; color: var(--brand-2); font-size: 1rem; letter-spacing: .5px; text-transform: uppercase; }
+  .quiz > p { font-size: .9rem; margin-bottom: 22px; }
+  .q { margin-bottom: 22px; }
+  .q:last-child { margin-bottom: 0; }
+  .q .question { font-weight: 600; color: var(--text); margin-bottom: 12px; font-size: .95rem; }
+  .q .options { display: grid; gap: 8px; }
+  .q label { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 9px; cursor: pointer; font-size: .9rem; color: var(--muted); transition: .2s; }
+  .q label:hover { border-color: var(--brand); }
+  .q input { accent-color: var(--brand); }
+  .q .feedback { margin-top: 10px; font-size: .85rem; padding: 10px 14px; border-radius: 8px; display: none; }
+  .q .feedback.correct { background: rgba(0,210,184,.12); color: var(--brand-2); display: block; }
+  .q .feedback.wrong { background: rgba(255,95,87,.12); color: #ff8b85; display: block; }
+
+  /* ============ TAKEAWAYS ============ */
+  .takeaways { background: linear-gradient(135deg, rgba(108,92,231,.12), rgba(0,210,184,.08)); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; margin: 34px 0; }
   .takeaways h3 { margin: 0 0 14px; color: var(--brand-2); font-size: 1rem; letter-spacing: .5px; text-transform: uppercase; }
   .takeaways ul { list-style: none; margin: 0; display: grid; gap: 10px; }
   .takeaways li { display: flex; gap: 10px; align-items: flex-start; color: var(--muted); font-size: .94rem; margin: 0; }
   .takeaways li::before { content: "✓"; color: var(--brand-2); font-weight: 900; flex: none; }
 
+  /* ============ GLOSSARY ============ */
+  .glossary { display: grid; gap: 12px; margin: 22px 0; }
+  .glossary .term { background: var(--card); border-left: 3px solid var(--brand); border-radius: 0 10px 10px 0; padding: 14px 18px; }
+  .glossary .term b { color: var(--brand-2); display: block; margin-bottom: 4px; font-size: .95rem; }
+  .glossary .term span { color: var(--muted); font-size: .9rem; }
+
+  /* ============ LESSON NAV ============ */
   .lesson-nav { display: flex; justify-content: space-between; gap: 16px; margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border); }
   .lesson-nav a { display: flex; align-items: center; gap: 12px; padding: 16px 22px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; transition: .25s; flex: 1; max-width: 320px; }
   .lesson-nav a:hover { border-color: var(--brand); transform: translateY(-2px); }
@@ -105,9 +163,11 @@
   .lesson-nav .label { font-size: .74rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
   .lesson-nav .title { font-size: .95rem; font-weight: 600; color: var(--text); }
 
+  /* ============ FOOTER ============ */
   footer { border-top: 1px solid var(--border); padding: 34px 0 22px; background: #080c14; font-size: .85rem; color: var(--muted); text-align: center; }
   footer a { color: var(--brand-2); }
 
+  /* ============ RESPONSIVE ============ */
   @media (max-width: 900px) {
     .lesson-layout { grid-template-columns: 1fr; }
     .sidebar { position: static; max-height: none; overflow: visible; }
@@ -156,6 +216,7 @@
 
 <div class="container lesson-layout">
 
+  <!-- ================= SIDEBAR ================= -->
   <aside class="sidebar">
     <h3>Module 01</h3>
     <ul>
@@ -165,6 +226,27 @@
       <li><a href="01-04-hardware-software.html"><span class="num">1.4</span> Hardware & Software</a></li>
       <li><a href="01-05-setup.html"><span class="num">1.5</span> Setup Your Environment</a></li>
     </ul>
+
+    <div class="toc">
+      <h4>On this page</h4>
+      <ul>
+        <li><a href="#why">Why architecture matters</a></li>
+        <li><a href="#overview">The 4 layers overview</a></li>
+        <li><a href="#perception">1. Perception Layer</a></li>
+        <li><a href="#network">2. Network Layer</a></li>
+        <li><a href="#processing">3. Processing Layer</a></li>
+        <li><a href="#application">4. Application Layer</a></li>
+        <li><a href="#flow">Data flow example</a></li>
+        <li><a href="#edge">Edge vs Cloud</a></li>
+        <li><a href="#compare">Comparing architecture models</a></li>
+        <li><a href="#security">Security per layer</a></li>
+        <li><a href="#design">Designing your own</a></li>
+        <li><a href="#mistakes">Common mistakes</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#glossary">Glossary</a></li>
+      </ul>
+    </div>
+
     <h4>Other Modules</h4>
     <ul>
       <li><a href="02-microcontrollers.html"><span class="num">02</span> Microcontrollers</a></li>
@@ -175,68 +257,82 @@
     </ul>
   </aside>
 
+  <!-- ================= CONTENT ================= -->
   <article class="lesson">
-    <h1>1.2 — IoT Architecture</h1>
+    <h1>1.2 — IoT Architecture: The Complete Deep Dive</h1>
     <div class="meta">
-      <span>⏱ 25 min read</span>
-      <span>📖 Theory</span>
-      <span>🎯 Beginner</span>
+      <span>⏱ 35 min read</span>
+      <span>📖 Theory + Examples</span>
+      <span>🎯 Beginner → Intermediate</span>
       <span>🧩 Module 01 · Lesson 2</span>
     </div>
 
     <p>
-      Every IoT system — from a smart bulb to a smart city — is built on the same
-      four-layer architecture. Understanding this blueprint is the single most
-      important mental model you'll carry through the rest of this course.
+      Every IoT system — from a $5 smart bulb to a multi-million-dollar industrial
+      deployment — is built on the same four-layer blueprint. In this deep-dive
+      chapter, you'll master that blueprint: what lives in each layer, how data
+      flows, where things go wrong, and how real engineers design systems that
+      scale from 1 device to 1 million.
     </p>
 
     <div class="callout tip">
-      <span class="title">💡 What you'll learn</span>
-      <p>The 4 layers of IoT architecture, what lives in each layer, and how data flows between them.</p>
+      <span class="title">💡 What you'll master</span>
+      <p>The 4-layer model, edge vs cloud trade-offs, security at every layer, real-world design patterns, and how to sketch an IoT system before writing a single line of code.</p>
     </div>
 
-    <h2>Why an architecture matters</h2>
+    <!-- ============ WHY ============ -->
+    <h2 id="why">Why architecture matters</h2>
     <p>
       When you build your first IoT project, it's tempting to jump straight to code.
-      But without understanding the layers, you'll hit walls fast:
+      Blink an LED, connect to Wi-Fi, publish to MQTT — done, right? For a demo,
+      yes. But the moment your project grows beyond one device, everything falls
+      apart without an architecture.
     </p>
+    <p>Here's what happens without one:</p>
     <ul>
-      <li>You won't know <strong>where</strong> to process data (device vs cloud)</li>
-      <li>You'll pick the wrong <strong>protocol</strong> for your use case</li>
-      <li>You'll struggle to <strong>scale</strong> from 1 device to 1,000</li>
-      <li>You'll miss critical <strong>security</strong> gaps between layers</li>
+      <li><strong>You won't know where to process data.</strong> Should the ESP32 decide, or the cloud? Guessing wrong means slow response times or high bills.</li>
+      <li><strong>You'll pick the wrong protocol.</strong> HTTP for a battery device drains it in days. MQTT would have lasted months.</li>
+      <li><strong>You'll struggle to scale.</strong> What works for 1 sensor breaks at 100 sensors.</li>
+      <li><strong>You'll miss security gaps.</strong> Every layer has its own threats, and attackers only need one weak link.</li>
+      <li><strong>You'll waste time debugging.</strong> Is the problem the sensor, the network, the broker, or the dashboard? Without layers, you can't tell.</li>
     </ul>
-    <p>The 4-layer model solves all of this by giving every piece a clear home.</p>
 
-    <h2>The 4 layers of IoT</h2>
+    <div class="callout">
+      <span class="title">📌 The core principle</span>
+      <p>Every piece of an IoT system belongs to exactly one layer, and each layer has a clear job. When something breaks, you know exactly where to look.</p>
+    </div>
+
+    <!-- ============ OVERVIEW ============ -->
+    <h2 id="overview">The 4 layers at a glance</h2>
+    <p>Here's the model we'll use throughout the course:</p>
 
     <div class="layers">
       <div class="layer app">
         <div class="badge">🖥️</div>
         <div>
-          <h3>1. Application Layer</h3>
-          <p>The user-facing part — dashboards, mobile apps, alerts, APIs. This is where humans interact with the system and where business logic lives.</p>
+          <h3>Layer 4 — Application</h3>
+          <p>The user-facing part: dashboards, mobile apps, alerts, APIs. Where humans interact and business logic lives.</p>
         </div>
       </div>
       <div class="layer proc">
         <div class="badge">☁️</div>
         <div>
-          <h3>2. Processing Layer</h3>
-          <p>Also called the middleware or cloud layer. Stores data, runs analytics, applies rules, and decides what actions to trigger.</p>
+          <h3>Layer 3 — Processing</h3>
+          <p>Also called middleware or cloud. Stores data, runs analytics, applies rules, decides actions.</p>
         </div>
       </div>
       <div class="layer net">
         <div class="badge">📡</div>
         <div>
-          <h3>3. Network Layer</h3>
-          <p>Moves data from devices to the cloud and back. Includes Wi-Fi, cellular, LoRaWAN, BLE, and protocols like MQTT, HTTP, and CoAP.</p>
+          <h3>Layer 2 — Network</h3>
+          <p>Moves data. Wi-Fi, cellular, LoRaWAN, BLE, plus protocols like MQTT, HTTP, CoAP.</p>
         </div>
       </div>
       <div class="layer perc">
         <div class="badge">🌡️</div>
         <div>
-          <h3>4. Perception Layer</h3>
-          <p>Also called the sensing layer. Physical sensors and actuators that interact with the real world — temperature, motion, light, pressure.</p>
+          <h3>Layer 1 — Perception</h3>
+          <p>Also called sensing. Sensors, actuators, and microcontrollers that touch the physical world.</p>
         </div>
       </div>
     </div>
@@ -244,136 +340,104 @@
     <div class="code-block">
       <div class="bar"><i></i><i></i><i></i><span>iot-4-layers.txt</span></div>
 <pre>
-  ┌─────────────────────────────────────┐
-  │  APPLICATION LAYER                  │  ← Dashboards, apps, alerts
-  ├─────────────────────────────────────┤
-  │  PROCESSING LAYER                   │  ← Cloud, databases, analytics
-  ├─────────────────────────────────────┤
-  │  NETWORK LAYER                      │  ← Wi-Fi, MQTT, LoRaWAN
-  ├─────────────────────────────────────┤
-  │  PERCEPTION LAYER                   │  ← Sensors, actuators
-  └─────────────────────────────────────┘
+  ┌─────────────────────────────────────────┐
+  │  APPLICATION LAYER                      │  ← Dashboards, apps, alerts
+  ├─────────────────────────────────────────┤
+  │  PROCESSING LAYER                       │  ← Cloud, DBs, analytics, rules
+  ├─────────────────────────────────────────┤
+  │  NETWORK LAYER                          │  ← Wi-Fi, MQTT, LoRaWAN
+  ├─────────────────────────────────────────┤
+  │  PERCEPTION LAYER                       │  ← Sensors, actuators, MCUs
+  └─────────────────────────────────────────┘
+         ↑ Data flows up    ↓ Commands flow down
 </pre>
     </div>
 
-    <h2>Layer 1 — Perception Layer</h2>
-    <p>The bottom of the stack. This is where the physical world becomes data.</p>
+    <div class="callout tip">
+      <span class="title">🔄 Remember the two directions</span>
+      <p>Telemetry (sensor readings) flows <strong>up</strong> the stack. Commands (turn on fan) flow <strong>down</strong>. Both are essential.</p>
+    </div>
+
+    <!-- ============ PERCEPTION ============ -->
+    <h2 id="perception">Layer 1 — Perception Layer (the physical world)</h2>
+    <p>
+      This is the bottom of the stack — the layer that actually touches reality.
+      It converts physical phenomena (heat, motion, light) into digital signals,
+      and converts digital commands back into physical actions.
+    </p>
+
     <h3>What lives here</h3>
-    <ul>
-      <li><strong>Sensors:</strong> Temperature (DHT22), motion (PIR), light (LDR), distance (ultrasonic), gas, humidity, pressure</li>
-      <li><strong>Actuators:</strong> Motors, relays, LEDs, buzzers, servo motors, valves</li>
-      <li><strong>Microcontrollers:</strong> ESP32, Arduino, Raspberry Pi Pico — the brain that reads sensors and drives actuators</li>
-    </ul>
+    <div class="kv-grid">
+      <div class="kv">
+        <div class="k">Sensors</div>
+        <div class="v">DHT22 (temp/humidity), PIR (motion), LDR (light), ultrasonic (distance), MQ-2 (gas), soil moisture, accelerometers</div>
+      </div>
+      <div class="kv">
+        <div class="k">Actuators</div>
+        <div class="v">Relays, motors, servo motors, LEDs, buzzers, solenoid valves, stepper motors, LCD displays</div>
+      </div>
+      <div class="kv">
+        <div class="k">Microcontrollers</div>
+        <div class="v">ESP32, ESP8266, Arduino Uno/Nano, Raspberry Pi Pico, STM32, Nordic nRF52</div>
+      </div>
+      <div class="kv">
+        <div class="k">Single-board computers</div>
+        <div class="v">Raspberry Pi 4/5, Jetson Nano — used when you need Linux, cameras, or heavy edge compute</div>
+      </div>
+    </div>
+
+    <h3>Types of sensors</h3>
+    <p>Sensors are usually classified by what they measure and how they output data:</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Type</th><th>Examples</th><th>Output</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Analog</strong></td><td>LDR, potentiometer, thermistor</td><td>Continuous voltage (0–3.3V)</td></tr>
+          <tr><td><strong>Digital</strong></td><td>PIR, button, reed switch</td><td>HIGH or LOW</td></tr>
+          <tr><td><strong>I²C / SPI</strong></td><td>BME280, MPU6050, OLED</td><td>Structured data over bus</td></tr>
+          <tr><td><strong>OneWire</strong></td><td>DS18B20 temperature</td><td>Digital over single wire</td></tr>
+          <tr><td><strong>UART</strong></td><td>GPS modules, fingerprint sensors</td><td>Serial data stream</td></tr>
+        </tbody>
+      </table>
+    </div>
+
     <div class="callout">
       <span class="title">📌 Key idea</span>
-      <p>This layer doesn't "think" much — it just converts physical signals to digital values (and vice versa).</p>
+      <p>The perception layer doesn't "think" much. It reads, converts, and hands off. All intelligence lives higher up.</p>
     </div>
 
-    <h2>Layer 2 — Network Layer</h2>
-    <p>The transport system. It gets data from the device to wherever it needs to go.</p>
-    <h3>What lives here</h3>
+    <h3>Real-world example: smart irrigation</h3>
     <ul>
-      <li><strong>Wireless:</strong> Wi-Fi, Bluetooth Low Energy (BLE), Zigbee, LoRaWAN, NB-IoT, 4G/5G</li>
-      <li><strong>Wired:</strong> Ethernet, RS-485, Modbus (common in factories)</li>
-      <li><strong>Protocols:</strong> MQTT (pub/sub), HTTP/REST, CoAP, WebSockets</li>
-      <li><strong>Gateways:</strong> Devices that bridge local networks to the internet</li>
-    </ul>
-    <div class="callout tip">
-      <span class="title">✅ Rule of thumb</span>
-      <p>Pick your network based on <strong>range, power, and bandwidth</strong>. Short-range + low-power → BLE. Long-range + low-power → LoRaWAN. High-bandwidth + always-on → Wi-Fi.</p>
-    </div>
-
-    <h2>Layer 3 — Processing Layer</h2>
-    <p>The brain. This is where raw data becomes useful information.</p>
-    <h3>What lives here</h3>
-    <ul>
-      <li><strong>Cloud platforms:</strong> AWS IoT Core, Azure IoT Hub, Google Cloud IoT</li>
-      <li><strong>Databases:</strong> Time-series (InfluxDB, TimescaleDB), NoSQL (MongoDB), SQL</li>
-      <li><strong>Stream processing:</strong> Apache Kafka, AWS Kinesis, Node-RED</li>
-      <li><strong>Rules engines:</strong> "If temperature > 40°C, send alert"</li>
-      <li><strong>Edge computing:</strong> Processing near the device instead of the cloud (faster, cheaper, works offline)</li>
-    </ul>
-    <div class="callout warn">
-      <span class="title">⚠ Edge vs Cloud</span>
-      <p><strong>Cloud</strong> = unlimited power, but latency and cost. <strong>Edge</strong> = fast and cheap, but limited compute. Real systems use both.</p>
-    </div>
-
-    <h2>Layer 4 — Application Layer</h2>
-    <p>The top. Where humans actually see and use the system.</p>
-    <h3>What lives here</h3>
-    <ul>
-      <li><strong>Dashboards:</strong> Grafana, Node-RED Dashboard, custom React/Vue apps</li>
-      <li><strong>Mobile apps:</strong> iOS/Android apps that control devices</li>
-      <li><strong>Alerts:</strong> Email, SMS, push notifications, Slack</li>
-      <li><strong>APIs:</strong> REST/GraphQL endpoints for third-party integrations</li>
-      <li><strong>Business logic:</strong> Billing, user management, reporting</li>
+      <li><strong>Sensor:</strong> Capacitive soil moisture sensor buried 5cm deep</li>
+      <li><strong>Controller:</strong> ESP32 reads the analog value every 15 minutes</li>
+      <li><strong>Actuator:</strong> A 5V relay controls a small water pump</li>
+      <li><strong>Decision:</strong> Done in the processing layer, not here</li>
     </ul>
 
-    <h2>How data flows: a full example</h2>
-    <p>Let's trace a smart greenhouse through all four layers:</p>
-    <ol>
-      <li><strong>Perception:</strong> A DHT22 sensor reads 38°C and 45% humidity</li>
-      <li><strong>Network:</strong> The ESP32 publishes this as an MQTT message to <code>greenhouse/zone1/temp</code></li>
-      <li><strong>Processing:</strong> A rule on the cloud checks: "Is temp > 35°C?" → Yes → trigger cooling</li>
-      <li><strong>Application:</strong> A dashboard lights up red, an SMS is sent to the farmer, and a fan command is published back</li>
-      <li><strong>Network:</strong> The command <code>greenhouse/zone1/fan=ON</code> travels back over MQTT</li>
-      <li><strong>Perception:</strong> The ESP32 receives the command and drives a relay to turn on the fan</li>
-    </ol>
+    <!-- ============ NETWORK ============ -->
+    <h2 id="network">Layer 2 — Network Layer (getting data across)</h2>
+    <p>
+      The network layer's job is simple to describe and hard to get right: move
+      data from point A to point B, reliably, cheaply, and securely.
+    </p>
 
-    <div class="callout tip">
-      <span class="title">🔄 Notice</span>
-      <p>Data flows <strong>up</strong> (sense → cloud) and commands flow <strong>down</strong> (cloud → actuator). Both directions matter.</p>
-    </div>
-
-    <h2>Common alternative models</h2>
-    <p>You'll see other breakdowns of IoT architecture. They're variations of the same idea:</p>
-    <ul>
-      <li><strong>3-layer model:</strong> Perception, Network, Application (processing is folded into application)</li>
-      <li><strong>5-layer model:</strong> Adds a "Business Layer" on top for business models and analytics</li>
-      <li><strong>7-layer model (IoTWF):</strong> Cisco's extended model for enterprise IoT</li>
-    </ul>
-    <p>For learning and building, the <strong>4-layer model</strong> is the sweet spot.</p>
-
-    <div class="takeaways">
-      <h3>Key Takeaways</h3>
-      <ul>
-        <li>Every IoT system has 4 layers: Perception, Network, Processing, Application</li>
-        <li>Perception = sensors + actuators + microcontrollers (the physical world)</li>
-        <li>Network = how data travels (Wi-Fi, MQTT, LoRaWAN)</li>
-        <li>Processing = where data is stored, analyzed, and acted upon (cloud or edge)</li>
-        <li>Application = what humans interact with (dashboards, apps, alerts)</li>
-        <li>Data flows up; commands flow down</li>
-        <li>When designing a project, sketch all 4 layers before writing code</li>
-      </ul>
-    </div>
-
-    <nav class="lesson-nav">
-      <a href="01-01-what-is-iot.html">
-        <div>
-          <div class="label">← Previous</div>
-          <div class="title">1.1 What is IoT?</div>
-        </div>
-      </a>
-      <a href="01-03-protocols.html" class="next">
-        <div>
-          <div class="label">Next →</div>
-          <div class="title">1.3 Common Protocols</div>
-        </div>
-      </a>
-    </nav>
-  </article>
-
-</div>
-
-<footer>
-  <div class="container">© 2026 Codexa · <a href="./">Back to IoT Course</a></div>
-</footer>
-
-<script>
-  const menuToggle = document.getElementById('menuToggle');
-  const navLinks = document.getElementById('navLinks');
-  menuToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
-</script>
-
-</body>
-</html>
+    <h3>Wireless options compared</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Technology</th><th>Range</th><th>Power</th><th>Bandwidth</th><th>Best for</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Wi-Fi</strong></td><td>~50m</td><td>High</td><td>High</td><td>Home/office devices with mains power</td></tr>
+          <tr><td><strong>Bluetooth LE</strong></td><td>~10m</td><td>Very low</td><td>Low</td><td>Wearables, phone-paired devices</td></tr>
+          <tr><td><strong>Zigbee</strong></td><td>~100m (mesh)</td><td>Very low</td><td>Low</td><td>Smart home mesh (Hue, SmartThings)</td></tr>
+          <tr><td><strong>LoRaWAN</strong></td><td>2–15 km</td><td>Very low</td><td>Very low</td><td>Agriculture, cities, remote sensors</td></tr>
+          <tr><td><strong>NB-IoT</strong></td><td>~10 km</td><td>Low</td><td>Low</td><td>Cellular IoT with SIM, meters</td></tr>
+          <tr><td><strong>4G / 5G</strong></td><td>Global</td><td>High</td><td>Very high</td><td>Cameras, vehicles, high-bandwidth</td></tr>
+          <tr><td><strong>Ethernet</strong></td><td>Cable</td><td>Low</td><td
+  
+      
+    
+        
